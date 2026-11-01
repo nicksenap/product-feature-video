@@ -1,0 +1,10 @@
+{
+  "name": "product-feature-video",
+  "version": "0.1.0",
+  "description": "Record real browser sessions of a web product with bsk and cut them into a branded feature showcase video with ffmpeg. Pi skill.",
+  "license": "MIT",
+  "keywords": ["pi-package", "skill", "demo-video", "bsk", "ffmpeg"],
+  "pi": {
+    "skills": ["./"]
+  }
+}

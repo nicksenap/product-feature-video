@@ -1,0 +1,71 @@
+{
+ "_source": "shape of a real 7-chapter cut; clip paths are relative to this file's folder",
+ "out": "acme-onboarding-demo.mp4",
+ "intro": [
+  "Set up your brand in Acme with Acme Assistant",
+  "Northwind, a made-up outdoor-gear brand: from data source to shared report in one conversation"
+ ],
+ "outro": [
+  "All of it in one conversation",
+  "Data sources · custom fields · dashboards · sharing · exports · scheduled tasks"
+ ],
+ "brand": {
+  "profile": "generic",
+  "color": "0x1B2A41",
+  "subtitle_color": "0xC9D6E3",
+  "approve_caption": "Nothing changes until you approve"
+ },
+ "clips": [
+  {
+   "file": "clips/01-connect.mp4",
+   "chapter": "1   Connect a data source",
+   "events": [{"pick": 31.8}, 77.8],
+   "end": 102.8,
+   "speed": 4,
+   "cursor": [
+    {"t": 31.4, "x": 614, "y": 891, "px": true},
+    {"t": 77.4, "x": 1180, "y": 744, "px": true}
+   ]
+  },
+  {
+   "file": "clips/01r-datasource.mp4",
+   "chapter": "1   Connect a data source",
+   "toast": "In the product: the new data source is syncing",
+   "speed": 1.2
+  },
+  {
+   "file": "clips/02-field.mp4",
+   "chapter": "2   Create a custom field",
+   "events": [36.8],
+   "end": 54.9,
+   "speed": 3
+  },
+  {
+   "file": "clips/02r-field.mp4",
+   "chapter": "2   Create a custom field",
+   "toast": "In the product: the field, with its formula",
+   "speed": 1.2
+  },
+  {
+   "file": "clips/03-dashboard.mp4",
+   "chapter": "3   Build a dashboard",
+   "events": [26.8, 46.8, 56.8],
+   "end": 74.2,
+   "speed": 4
+  },
+  {
+   "file": "clips/03r-dashboard.mp4",
+   "chapter": "3   Build a dashboard",
+   "toast": "In the product: the dashboard, with live data",
+   "speed": 1.4,
+   "start": 5.5
+  },
+  {
+   "file": "clips/04-analysis.mp4",
+   "chapter": "4   Ask a question of the data",
+   "end": 63.3,
+   "toast": "The answer, with the numbers behind it",
+   "speed": 3.5
+  }
+ ]
+}
