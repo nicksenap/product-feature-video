@@ -17,11 +17,21 @@ A 1080p MP4 with an intro card, a chapter banner on every clip, a caption on the
 
 ## Install
 
+Pi:
+
 ```
 pi install git:github.com/nicksenap/product-feature-video
 ```
 
-or copy the repo to `~/.pi/agent/skills/product-feature-video`.
+Claude Code, Codex, Cursor, opencode, Gemini CLI, Copilot and the other agents the [`skills`](https://github.com/vercel-labs/skills) CLI knows (Node 22.20+):
+
+```
+npx skills add nicksenap/product-feature-video
+```
+
+Add `-g` to install for every project, `-a claude-code` (or another agent id) to pick the agent instead of being asked.
+
+Anything else: copy the repo into the directory your agent reads skills from, e.g. `~/.pi/agent/skills/product-feature-video` or `.claude/skills/product-feature-video`. The repo root is the skill; `SKILL.md` is the entry point and the scripts are referenced relative to it.
 
 ## Use
 
