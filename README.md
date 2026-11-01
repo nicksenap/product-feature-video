@@ -17,12 +17,16 @@ A 1080p MP4 with an intro card, a chapter banner on every clip, a caption on the
 You need all of these before the first run. `scripts/doctor.sh` checks every line.
 
 1. **A coding agent that reads skills**: [Pi](https://github.com/badlogic/pi-mono), Claude Code, Codex, Cursor, opencode, … The skill is instructions plus scripts; an agent drives them.
-2. **bsk (BrowserSkill)**, CLI and browser extension. The scripts record and act through it.
+2. **[bsk (BrowserSkill)](https://github.com/Tencent/BrowserSkill)**, CLI and browser extension. The scripts record and act through it. Shortest path: paste this to your agent, which installs the CLI and tells you what to do in the browser:
+
+   > Set up browser-skill on this machine by following https://raw.githubusercontent.com/Tencent/BrowserSkill/main/AGENT_INSTALL.md
+
+   By hand:
    ```sh
-   curl -fsSL https://raw.githubusercontent.com/Tencent/BrowserSkill/main/install.sh | sh
+   curl -fsSL https://raw.githubusercontent.com/Tencent/BrowserSkill/main/install.sh | sh   # Windows: irm https://raw.githubusercontent.com/Tencent/BrowserSkill/main/install.ps1 | iex
    export PATH="$HOME/.local/bin:$PATH"
    ```
-   Then install the extension in Chrome or Edge ([Chrome Web Store](https://chromewebstore.google.com/detail/hhcmgoofomhgciiibhipgmgkgnoenaoi), [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/browserskill/emacgiaaaiojkkpkddmmdfhmokgmnikg)), open its popup, enable the local connection, and confirm `bsk doctor` says the extension is connected. Windows: `irm https://raw.githubusercontent.com/Tencent/BrowserSkill/main/install.ps1 | iex`. Full instructions: [Tencent/BrowserSkill](https://github.com/Tencent/BrowserSkill).
+   Then install the extension ([Chrome Web Store](https://chromewebstore.google.com/detail/hhcmgoofomhgciiibhipgmgkgnoenaoi), [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/browserskill/emacgiaaaiojkkpkddmmdfhmokgmnikg)), open its popup, enable the local connection, and confirm `bsk doctor` reports the extension connected. The extension must be installed by you; no agent can do that part.
 3. **ffmpeg and ffprobe** with libfreetype (`drawtext`) and an H.264 encoder. `brew install ffmpeg` on macOS. Apple Silicon uses `h264_videotoolbox`; elsewhere `libx264`.
 4. **python3** (standard library only).
 5. **macOS** is what this is tested on. The window-sizing step assumes a floating browser window; with the [AeroSpace](https://github.com/nikitabobko/AeroSpace) tiling WM the script floats it for you. Linux and Windows should work for recording and cutting but have not been tried; expect to adjust `start-session.sh`.
@@ -33,6 +37,10 @@ scripts/doctor.sh
 ```
 
 ## Install
+
+Paste this to your agent and it does the rest, including the environment check:
+
+> Install the product-feature-video skill from https://github.com/nicksenap/product-feature-video (`npx skills add nicksenap/product-feature-video`, or `pi install git:github.com/nicksenap/product-feature-video` in Pi), then run its `scripts/doctor.sh` and fix every FAIL line; tell me what you need me to do in the browser.
 
 Pi:
 
