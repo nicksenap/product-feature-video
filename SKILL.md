@@ -7,7 +7,7 @@ description: Produce a short feature showcase video of a web product (chat/agent
 
 One video = one customer story, recorded turn by turn in the real product, then cut. Set `SKILL=<directory of this file>` and call scripts as `$SKILL/scripts/<name>`. Work in a fresh folder per video: `clips/`, `storyboard.json`, the output mp4.
 
-Needs: `bsk` with a connected browser (`bsk browsers`), `ffmpeg`/`ffprobe`, `python3`; AeroSpace optional.
+Needs: `bsk` CLI + browser extension connected, `ffmpeg`/`ffprobe`, `python3`; AeroSpace optional. `$SKILL/scripts/doctor.sh` checks all of it; run it first and fix FAIL lines before anything else.
 
 ## Profiles
 

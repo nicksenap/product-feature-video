@@ -22,8 +22,14 @@ if [ "$MODE" = approval ]; then
   observe | grep -E '@e[0-9]+ button' | grep -v disabled | sed -E 's/^ *//; s/ \[ctx:.*//' > "$DIR/.buttons-now"
   new=$(grep -vxF -f "$DIR/.buttons" "$DIR/.buttons-now" | grep -viE '"(Cancel|Edit|Back|Copy|Close|Dismiss|Always allow)' || true)
   echo "buttons new since the probe (enabled):"; echo "$new" | sed 's/^/  /'
-  pick=$(echo "$new" | head -1 | sed -E 's/@e[0-9]+ //; s/ \[.*//')
-  [ -n "$pick" ] || { echo "nothing new; is the card on screen?" >&2; exit 1; }
+  # an approval button is a confirm-shaped label; a page can grow many other buttons (menus, toolbars)
+  pick=""
+  for w in "Allow once" Allow Approve Confirm Accept "Go ahead" Proceed Continue Yes OK Run Execute Implement Apply Submit Save Create Send; do
+    pick=$(echo "$new" | grep -iE "\"$w[^\"]{0,12}\"" | head -1 | sed -E 's/@e[0-9]+ //; s/ \[.*//'); [ -n "$pick" ] && break
+  done
+  if [ -z "$pick" ]; then
+    echo "no confirm-shaped button among them; is the card on screen (not a menu)? Set APPROVE_RE by hand if the label is unusual." >&2; exit 1
+  fi
   re="@e[0-9]+ $pick"
   lbl=$(echo "$pick" | sed -E 's/^button "//; s/"$//')
   scroll="(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.innerText.trim().startsWith($(js "$lbl")));b&&b.scrollIntoView({block:'center',behavior:'smooth'});return !!b})()"

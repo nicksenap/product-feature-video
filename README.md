@@ -1,6 +1,10 @@
 # product-feature-video
 
-Record a web product doing real work in a real browser, then cut the takes into a short, branded feature showcase video. A [Pi](https://github.com/badlogic/pi-mono) skill: `SKILL.md` is the procedure, `scripts/` does the recording and cutting, `profiles/` describes how to drive a given product.
+Record a web product doing real work in a real browser, then cut the takes into a short, branded feature showcase video.
+
+![A feature asked for in a chat UI, built, then shown working in the live preview, with chapter banner, cursor and caption](docs/demo.gif)
+
+*Made by the skill with no product knowledge: `probe.sh` wrote the profile, `scene.sh` recorded the ask, a 12-second reveal clicked two date ranges, `build.py` cut it. Storyboard in [`docs/demo.storyboard.json`](docs/demo.storyboard.json).* A [Pi](https://github.com/badlogic/pi-mono) skill: `SKILL.md` is the procedure, `scripts/` does the recording and cutting, `profiles/` describes how to drive a given product.
 
 Built for chat and agent UIs: the user asks, the product proposes, an approval card appears, something gets created, you open it. One video is one customer story told in 3–7 of those beats.
 
@@ -10,10 +14,23 @@ A 1080p MP4 with an intro card, a chapter banner on every clip, a caption on the
 
 ## Requirements
 
-- [bsk](https://github.com/Tencent/BrowserSkill) (BrowserSkill) with a connected Chrome (`bsk browsers`)
-- `ffmpeg` and `ffprobe`
-- `python3`
-- macOS; [AeroSpace](https://github.com/nikitabobko/AeroSpace) optional (the session script floats the browser window so it can be sized)
+You need all of these before the first run. `scripts/doctor.sh` checks every line.
+
+1. **A coding agent that reads skills**: [Pi](https://github.com/badlogic/pi-mono), Claude Code, Codex, Cursor, opencode, … The skill is instructions plus scripts; an agent drives them.
+2. **bsk (BrowserSkill)**, CLI and browser extension. The scripts record and act through it.
+   ```sh
+   curl -fsSL https://raw.githubusercontent.com/Tencent/BrowserSkill/main/install.sh | sh
+   export PATH="$HOME/.local/bin:$PATH"
+   ```
+   Then install the extension in Chrome or Edge ([Chrome Web Store](https://chromewebstore.google.com/detail/hhcmgoofomhgciiibhipgmgkgnoenaoi), [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/browserskill/emacgiaaaiojkkpkddmmdfhmokgmnikg)), open its popup, enable the local connection, and confirm `bsk doctor` says the extension is connected. Windows: `irm https://raw.githubusercontent.com/Tencent/BrowserSkill/main/install.ps1 | iex`. Full instructions: [Tencent/BrowserSkill](https://github.com/Tencent/BrowserSkill).
+3. **ffmpeg and ffprobe** with libfreetype (`drawtext`) and an H.264 encoder. `brew install ffmpeg` on macOS. Apple Silicon uses `h264_videotoolbox`; elsewhere `libx264`.
+4. **python3** (standard library only).
+5. **macOS** is what this is tested on. The window-sizing step assumes a floating browser window; with the [AeroSpace](https://github.com/nikitabobko/AeroSpace) tiling WM the script floats it for you. Linux and Windows should work for recording and cutting but have not been tried; expect to adjust `start-session.sh`.
+6. **An account in the product you are recording**, logged in in that browser. Everything the video shows is real: created objects stay created.
+
+```sh
+scripts/doctor.sh
+```
 
 ## Install
 
@@ -42,8 +59,10 @@ Ask the agent for a demo video of the product:
 Under the hood:
 
 ```
+scripts/doctor.sh                                   # everything installed and connected?
 S=$(scripts/start-session.sh demo https://example.com/app)
-PROFILE=<name|path> scripts/scene.sh $S clips/01-ask.mp4 'Connect my analytics account' 480
+scripts/probe.sh $S ./profile 'What can you help me with here?'   # writes profile/profile.sh
+PROFILE=./profile scripts/scene.sh $S clips/01-ask.mp4 'Connect my analytics account' 480
 scripts/reveal.sh $S clips/01r-result.mp4 https://example.com/app/sources/123
 # write storyboard.json (schema in scripts/build.py, example in examples/)
 python3 scripts/build.py storyboard.json
@@ -82,11 +101,13 @@ With an approval card on screen, `scripts/probe.sh approval $S ./profile` propos
 - `scripts/reveal.sh` — record opening a page
 - `scripts/strips.sh` — frame strips to pin approval click times
 - `scripts/build.py` — storyboard → video
+- `scripts/doctor.sh` — check the environment
 - `scripts/probe.sh` — explore a product and write its profile
 - `scripts/lib.sh` — shared bsk helpers (context sync, retry)
 - `scripts/assets/` — cursor and click ring
 - `profiles/generic/` — the annotated profile reference
 - `examples/` — a worked storyboard
+- `docs/` — the demo gif and its storyboard
 
 ## License
 
