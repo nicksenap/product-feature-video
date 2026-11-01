@@ -16,6 +16,15 @@ A 1080p MP4 with an intro card, a chapter banner on every clip, a caption on the
 
 You need all of these before the first run. `scripts/doctor.sh` checks every line.
 
+| | What | Why |
+|---|---|---|
+| 1 | A coding agent that reads skills | drives the scripts |
+| 2 | Chrome or Edge (Chromium 125+), logged into the product | the recording happens in a real tab |
+| 3 | bsk CLI + BrowserSkill extension | the agent's hands in that tab, and the screen recorder |
+| 4 | ffmpeg + ffprobe (with `drawtext`, H.264) | the cut: cards, banners, cursor, encoding |
+| 5 | python3 | `build.py`, JSON parsing in the scripts |
+| 6 | macOS (tested); Node 22.20+ only if you install with `npx skills` | |
+
 1. **A coding agent that reads skills**: [Pi](https://github.com/badlogic/pi-mono), Claude Code, Codex, Cursor, opencode, … The skill is instructions plus scripts; an agent drives them.
 2. **[bsk (BrowserSkill)](https://github.com/Tencent/BrowserSkill)**, CLI and browser extension. The scripts record and act through it. Shortest path: paste this to your agent, which installs the CLI and tells you what to do in the browser:
 
@@ -30,7 +39,7 @@ You need all of these before the first run. `scripts/doctor.sh` checks every lin
 3. **ffmpeg and ffprobe** with libfreetype (`drawtext`) and an H.264 encoder. `brew install ffmpeg` on macOS. Apple Silicon uses `h264_videotoolbox`; elsewhere `libx264`.
 4. **python3** (standard library only).
 5. **macOS** is what this is tested on. The window-sizing step assumes a floating browser window; with the [AeroSpace](https://github.com/nikitabobko/AeroSpace) tiling WM the script floats it for you. Linux and Windows should work for recording and cutting but have not been tried; expect to adjust `start-session.sh`.
-6. **An account in the product you are recording**, logged in in that browser. Everything the video shows is real: created objects stay created.
+6. **Chrome or Edge with an account in the product you are recording**, logged in. Everything the video shows is real: created objects stay created.
 
 ```sh
 scripts/doctor.sh
@@ -40,7 +49,7 @@ scripts/doctor.sh
 
 Paste this to your agent and it does the rest, including the environment check:
 
-> Install the product-feature-video skill from https://github.com/nicksenap/product-feature-video (`npx skills add nicksenap/product-feature-video`, or `pi install git:github.com/nicksenap/product-feature-video` in Pi), then run its `scripts/doctor.sh` and fix every FAIL line; tell me what you need me to do in the browser.
+> Install the product-feature-video skill from https://github.com/nicksenap/product-feature-video (`npx skills add nicksenap/product-feature-video`, or `pi install git:github.com/nicksenap/product-feature-video` in Pi). Make sure ffmpeg, ffprobe and python3 are installed (`brew install ffmpeg` on macOS). Set up bsk by following https://raw.githubusercontent.com/Tencent/BrowserSkill/main/AGENT_INSTALL.md. Then run the skill's `scripts/doctor.sh` and fix every FAIL line; tell me what I have to do myself (installing the browser extension, enabling its local connection, logging into the product).
 
 Pi:
 
