@@ -19,9 +19,8 @@ APPROVE_RE=''; APPROVE_SCROLL_JS=''; APPROVE_JS_FILE=''
 # shellcheck source=/dev/null
 . "$P"
 FIND_JS=""; [ -n "$APPROVE_JS_FILE" ] && FIND_JS=$(cat "$APPROVE_JS_FILE")
-ctx(){ bsk cooperate sync --session "$S" --json 2>/dev/null | python3 -c 'import json,sys;print(json.load(sys.stdin).get("context_id",""))' 2>/dev/null; }
-ev(){ local out; for _ in 1 2 3; do out=$(bsk evaluate --session "$S" --context "$(ctx)" "$1" 2>&1 | tail -1); case "$out" in *"synchronize and replan"*) sleep 0.5;; *) break;; esac; done; printf '%s\n' "$out"; }
-log(){ echo "[$(date +%T)] $*" >&2; }
+# shellcheck source=lib.sh
+. "$HERE/lib.sh"
 approve_ref(){ [ -n "$APPROVE_RE" ] || return 0; bsk observe --session "$S" 2>/dev/null | grep -E "$APPROVE_RE" | grep -v disabled | head -1 | grep -o '@e[0-9]*'; }
 
 REC=$(bsk video start --session "$S" --duration 10m --quality clear --json | python3 -c 'import json,sys;print(json.load(sys.stdin)["recording"]["recording_id"])')
@@ -32,16 +31,16 @@ if [ -n "$PROMPT" ]; then
   PJ=$(python3 -c 'import json,sys;print(json.dumps(sys.argv[1]))' "$PROMPT")
   # Focus the input via its snapshot ref (works for inputs the CSS selector misses), then type with a human cadence.
   ref=$(bsk observe --session "$S" | grep -E '@e[0-9]+ textbox' | tail -1 | grep -o '@e[0-9]*')
-  [ -n "$ref" ] && bsk click "$ref" --session "$S" --context "$(ctx)" >/dev/null 2>&1
+  [ -n "$ref" ] && act click "$ref" >/dev/null
   ev "(async()=>{const e=document.activeElement&&document.activeElement!==document.body?document.activeElement:document.querySelector('$INPUT_SEL');e.focus();for(const ch of $PJ){document.execCommand('insertText',false,ch);await new Promise(r=>setTimeout(r,28));}return 'typed'})()" >/dev/null
   sleep 1.2
   for t in 1 2 3 4 5; do
     if [ -n "$SEND_RE" ]; then
       ref=$(bsk observe --session "$S" | grep -E "$SEND_RE" | grep -v disabled | tail -1 | grep -o '@e[0-9]*')
-      [ -n "$ref" ] && bsk click "$ref" --session "$S" --context "$(ctx)" >/dev/null 2>&1 && break
+      [ -n "$ref" ] && act click "$ref" >/dev/null && break
     else
       ref=$(bsk observe --session "$S" | grep -o '@e[0-9]* textbox' | tail -1 | cut -d' ' -f1)
-      bsk press Enter --ref "$ref" --session "$S" --context "$(ctx)" >/dev/null 2>&1 && break
+      act press Enter --ref "$ref" >/dev/null && break
     fi
     sleep 1
   done
@@ -51,8 +50,8 @@ fi
 if [ -n "${FILL:-}" ]; then
   sleep 1.5; fl=${FILL%%=*}; fv=${FILL#*=}
   ref=$(bsk observe --session "$S" | grep -F "textbox \"$fl\"" | grep -o '@e[0-9]*' | head -1)
-  bsk scroll-to "$ref" --session "$S" --context "$(ctx)" >/dev/null 2>&1; sleep 1
-  bsk click "$ref" --session "$S" --context "$(ctx)" >/dev/null 2>&1
+  act scroll-to "$ref" >/dev/null; sleep 1
+  act click "$ref" >/dev/null
   V=$(python3 -c 'import json,sys;print(json.dumps(sys.argv[1]))' "$fv")
   ev "(async()=>{const e=document.activeElement;for(const ch of $V){document.execCommand('insertText',false,ch);await new Promise(r=>setTimeout(r,45));}return e.value})()" >/dev/null
   log "filled $fl"; sleep 1.5
@@ -62,8 +61,8 @@ if [ -n "${PRE:-}" ]; then
   IFS=$'\x1f' read -r -a pre <<< "$(printf '%s' "$PRE" | sed 's/||/\x1f/g')"
   for lbl in "${pre[@]}"; do
     ref=""; for t in 1 2 3 4 5; do ref=$(bsk observe --session "$S" | grep -F "\"$lbl\"" | grep -v disabled | grep -o '@e[0-9]*' | head -1); [ -n "$ref" ] && break; sleep 1.5; done
-    bsk scroll-to "$ref" --session "$S" --context "$(ctx)" >/dev/null 2>&1; sleep 1.2
-    if bsk click "$ref" --session "$S" --context "$(ctx)" >/dev/null 2>&1; then log "pre-click: $lbl"; else log "pre-click FAILED: $lbl ($ref)"; fi
+    act scroll-to "$ref" >/dev/null; sleep 1.2
+    if act click "$ref" >/dev/null; then log "pre-click: $lbl"; else log "pre-click FAILED: $lbl ($ref)"; fi
     sleep 1.8
   done
 fi
@@ -86,7 +85,7 @@ while :; do
       [ -n "$APPROVE_SCROLL_JS" ] && ev "$APPROVE_SCROLL_JS" >/dev/null
       sleep ${READ_S:-3}
       btn=$(approve_ref)
-      if [ -n "$btn" ] && bsk click "$btn" --session "$S" --context "$(ctx)" >/dev/null 2>&1; then approvals=$((approvals+1)); log "approved ($btn)"; else log "click failed"; fi
+      if [ -n "$btn" ] && act click "$btn" >/dev/null; then approvals=$((approvals+1)); log "approved ($btn)"; else log "click failed"; fi
       [ $(( $(date +%s) - start )) -gt "$MAXW" ] && { log "timeout"; break; }
       sleep 3; continue
     fi

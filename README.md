@@ -66,7 +66,7 @@ TRANSCRIPT_JS="document.body.innerText"
 
 `assets/` holds `logo.png`, `logo-small.png`, a display `.ttf` and a text `.ttf`; `build.py` picks them up from `"brand": {"profile": "<name|path>"}` in the storyboard.
 
-Shipped: `generic` (template) and `claude` (claude.ai with an MCP connector, "Allow once" cards). Add your own next to them, or keep it anywhere and pass the path.
+Shipped: `generic` (template), `claude` (claude.ai with an MCP connector, "Allow once" cards) and `lovable` (Lovable's project editor). Writing one for a new product is a five-probe exploration with bsk; `SKILL.md` has the procedure under **New product**. Keep it next to the shipped ones or anywhere else and pass the path.
 
 ## Layout
 
@@ -76,6 +76,7 @@ Shipped: `generic` (template) and `claude` (claude.ai with an MCP connector, "Al
 - `scripts/reveal.sh` — record opening a page
 - `scripts/strips.sh` — frame strips to pin approval click times
 - `scripts/build.py` — storyboard → video
+- `scripts/lib.sh` — shared bsk helpers (context sync, retry)
 - `scripts/assets/` — cursor and click ring
 - `profiles/` — per-product selectors and brand assets
 - `examples/` — a worked storyboard

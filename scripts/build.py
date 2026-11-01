@@ -7,7 +7,7 @@ Storyboard:
   "out": "my-feature-demo.mp4",
   "brand": {                                   # optional; all keys optional
     "profile": "my-product",                  # name under profiles/ or a path to a profile dir; loads assets/{logo.png,logo-small.png,*.ttf}
-    "color": "0x0F3D2E", "subtitle_color": "0xB8D8C8",
+    "color": "0x1B2A41", "subtitle_color": "0xC9D6E3",
     "logo": "path/logo.png", "logo_small": "path/logo-small.png",
     "font_title": "path/Display.ttf", "font_text": "path/Text.ttf",
     "approve_caption": "Nothing changes until you approve"   # "" disables the first-approval caption
@@ -43,7 +43,7 @@ PAD_Y = (1080 - 1058) / 2
 GLIDE_S = 0.9
 
 DEFAULT_BRAND = {
-    "color": "0x0F3D2E", "subtitle_color": "0xB8D8C8",
+    "color": "0x1B2A41", "subtitle_color": "0xC9D6E3",
     "font_title": "/System/Library/Fonts/SFNS.ttf", "font_text": "/System/Library/Fonts/SFNS.ttf",
     "logo": None, "logo_small": None, "approve_caption": "Nothing changes until you approve",
 }
