@@ -11,26 +11,17 @@ Needs: `bsk` with a connected browser (`bsk browsers`), `ffmpeg`/`ffprobe`, `pyt
 
 ## Profiles
 
-A profile is a directory with `profile.sh` (how the recorder finds the input, the send button, the "busy" state, the approval cards and the transcript), optional `assets/` (`logo.png`, `logo-small.png`, a display `.ttf` and a text `.ttf`) and an optional approval finder (`approve.js`).
+A profile is a directory with `profile.sh` (how the recorder finds the input, the send button, the "busy" state, the approval cards and the transcript), optional `assets/` (`logo.png`, `logo-small.png`, a display `.ttf` and a text `.ttf`) and an optional approval finder (`approve.js`). `profiles/generic/profile.sh` documents every field. None ship for specific products: the probe writes one.
 
-- `profiles/generic`: template. Copy it and fill it in by following **New product** below.
-- `profiles/claude`: claude.ai with an MCP connector (**Allow once** cards, scrolled to centre first; messages can be edited).
-- `profiles/lovable`: Lovable's project editor (chat + live preview; no approval cards in Build/Chat mode).
-- A profile can live anywhere; pass it by path.
-
-Record with `PROFILE=<name|path>`. Brand the cut with `"brand": {"profile": "<name|path>"}` in the storyboard, or set `color`, `logo`, `logo_small`, `font_title`, `font_text`, `approve_caption` directly (`""` disables the caption).
+Record with `PROFILE=<path>`. Brand the cut with `"brand": {"profile": "<path>"}` in the storyboard, or set `color`, `logo`, `logo_small`, `font_title`, `font_text`, `approve_caption` directly (`""` disables the caption).
 
 ## New product
 
-A profile is what one exploration of the page finds. Open the product where the chat lives (`start-session.sh`), run the probes, write `profile.sh`, validate. ~5 minutes and one throwaway chat.
-
-1. **Input and send**: `bsk observe --session $S | grep -E 'textbox|button'`. The chat input is a `textbox` line; the send button is the `button` that is `[disabled]` now and enabled once text is in the box. `INPUT_SEL` is a CSS selector for that element (`bsk evaluate` `document.activeElement.outerHTML.slice(0,200)` after `bsk click` on the ref shows its tag and attributes); `SEND_RE` is a regex matching the button's observe line, or `''` if the product sends on Enter.
-2. **Busy**: send a throwaway question by hand, then poll every 2 s while it answers: `bsk evaluate` listing buttons whose label matches `/stop|cancel/i`, elements with `aria-busy`, `data-*streaming*`, and `[role=status]` text. Whatever is present during the answer and gone after it is `BUSY_JS` (return `'streaming'` or `'idle'`).
-3. **Approvals**: ask for something that needs confirmation and observe the card. If its primary button has a stable label, `APPROVE_RE` is that button's observe line and `APPROVE_SCROLL_JS` scrolls it to centre. If the label varies per action, write `approve.js`: a `(mode) => ...` function that, for `'scroll'`, scrolls the card's primary button into view and returns `'found'`, and for `'click'`, clicks it once and returns its label (see the comments in `profiles/generic/profile.sh`). No approval cards → leave all three empty.
-4. **Transcript**: the element whose `innerText` contains the answer, e.g. `[role=log]`, `main`, or `document.body`.
-5. **Validate**: `PROFILE=<dir> scene.sh $S clips/00-probe.mp4 '<read-only question>' 120`. Done when the log shows `sent`, then `approvals=0`, then a `transcript tail` containing the answer, with no `timeout` or `click failed`.
-
-While probing, read the page with `bsk observe` and `bsk evaluate`; both need a fresh `bsk cooperate sync --policy strict` context per action, and a live page can reject an action because it changed in between (`synchronize and replan`): sync again and repeat.
+1. Open a **fresh chat** in the product (`start-session.sh <name> <url>`), with the input visible.
+2. `$SKILL/scripts/probe.sh $S <profile-dir> '<read-only question>'`. It clicks the textbox, types one character to see which button enables (send), installs a sampler in the page, asks the question, and when the text settles reads the samples back: the signal present while the answer streamed and gone after (a Stop button, a `data-*` attribute, `aria-busy`, a status text) becomes `BUSY_JS`; the smallest container holding the question becomes `TRANSCRIPT_JS`. It prints the evidence for each line and writes `profile.sh`. If no DOM signal separates streaming from idle it falls back to "body text still changing", which works but ends turns ~4 s late.
+3. Approvals: ask the product for something that needs confirmation; with the card on screen run `probe.sh approval $S <profile-dir>`. It lists the buttons that appeared since the probe and sets `APPROVE_RE` + `APPROVE_SCROLL_JS` to the first that isn't Cancel/Edit/Back. If the primary button's label changes per action, write `approve.js` instead (contract in `profiles/generic/profile.sh`).
+4. Brand: drop `logo.png`, `logo-small.png` and two `.ttf` into `<profile-dir>/assets/`.
+5. Validate: `PROFILE=<profile-dir> scene.sh $S clips/00-probe.mp4 '<read-only question>' 120`. Done when the log shows `sent`, then `approvals=0` (or N with a card), then a `transcript tail` containing the answer, with no `timeout` or `click failed`. Read `profile.sh` once; the probe's choices are guesses with evidence, not facts.
 
 ## Story
 

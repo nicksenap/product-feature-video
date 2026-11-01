@@ -35,9 +35,9 @@ Anything else: copy the repo into the directory your agent reads skills from, e.
 
 ## Use
 
-Ask the agent for a demo video of the product and give it a profile:
+Ask the agent for a demo video of the product:
 
-> Make a feature video of <product> setting up a data source, a dashboard and a scheduled report. Use the `claude` profile.
+> Make a feature video of <product> setting up a data source, a dashboard and a scheduled report.
 
 Under the hood:
 
@@ -53,20 +53,26 @@ python3 scripts/build.py storyboard.json
 
 ## Profiles
 
-A profile is a directory with a `profile.sh` and optional `assets/` and `approve.js`:
+Nothing product-specific ships. `scripts/probe.sh` writes the profile for the product in front of it:
 
-```sh
-INPUT_SEL='textarea'                          # the chat input
-SEND_RE='@e[0-9]+ button "Send"'              # bsk observe line of the send button; '' = press Enter
-BUSY_JS="document.querySelector('[aria-busy=true]')?'streaming':'idle'"
-APPROVE_RE='@e[0-9]+ button "Approve'         # approval button, or ...
-APPROVE_JS_FILE="$(dirname "${BASH_SOURCE[0]}")/approve.js"   # ... a JS finder for cards without a stable label
-TRANSCRIPT_JS="document.body.innerText"
+```
+S=$(scripts/start-session.sh demo https://example.com/app)
+scripts/probe.sh $S ./profile 'In one sentence, what can you help me with here?'
 ```
 
-`assets/` holds `logo.png`, `logo-small.png`, a display `.ttf` and a text `.ttf`; `build.py` picks them up from `"brand": {"profile": "<name|path>"}` in the storyboard.
+It clicks the chat input, types one character to find the button that enables (send), installs a sampler in the page, asks the question, and when the text settles works out which signal was present while the answer streamed and gone after: a Stop button, a `data-*` attribute, `aria-busy`, a status text. It prints its evidence and writes `profile/profile.sh`:
 
-Shipped: `generic` (template), `claude` (claude.ai with an MCP connector, "Allow once" cards) and `lovable` (Lovable's project editor). Writing one for a new product is a five-probe exploration with bsk; `SKILL.md` has the procedure under **New product**. Keep it next to the shipped ones or anywhere else and pass the path.
+```sh
+INPUT_SEL='div[aria-label="Ask ..."]'
+SEND_RE='@e[0-9]+ button "Send message"'     # '' when Enter sends
+BUSY_JS="[...document.querySelectorAll('button')].some(b=>...includes(\"Stop generating\"))?'streaming':'idle'"
+APPROVE_RE=''                                # probe.sh approval fills this with a card on screen
+APPROVE_SCROLL_JS=''
+APPROVE_JS_FILE=''                           # or a JS finder for cards whose button label varies
+TRANSCRIPT_JS="document.querySelector(\"main\").innerText"
+```
+
+With an approval card on screen, `scripts/probe.sh approval $S ./profile` proposes `APPROVE_RE` from the buttons that appeared. Brand assets (`logo.png`, `logo-small.png`, two `.ttf`) go in `profile/assets/`. `profiles/generic/profile.sh` documents every field.
 
 ## Layout
 
@@ -76,9 +82,10 @@ Shipped: `generic` (template), `claude` (claude.ai with an MCP connector, "Allow
 - `scripts/reveal.sh` — record opening a page
 - `scripts/strips.sh` — frame strips to pin approval click times
 - `scripts/build.py` — storyboard → video
+- `scripts/probe.sh` — explore a product and write its profile
 - `scripts/lib.sh` — shared bsk helpers (context sync, retry)
 - `scripts/assets/` — cursor and click ring
-- `profiles/` — per-product selectors and brand assets
+- `profiles/generic/` — the annotated profile reference
 - `examples/` — a worked storyboard
 
 ## License
